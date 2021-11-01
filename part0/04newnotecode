@@ -1,0 +1,25 @@
+note over browser
+User input new node content
+end note
+browser->server: HTTP POST https://studies.cs.helsinki.fi/exampleapp/new_note
+server->browser:HTTP response status codes (302)
+browser->server:HTTP GET https://studies.cs.helsinki.fi/exampleapp/notes
+server->browser:HTML code
+browser->server:HTTP GET https://studies.cs.helsinki.fi/exampleapp/main.css
+server-->browser: main.css
+browser->server: HTTP GET https://studies.cs.helsinki.fi/exampleapp/main.js
+server-->browser: main.js
+
+note over browser:
+The browser executes the JavaScript code. 
+The code makes an HTTP GET request 
+to get json file, which returns the notes as JSON data.
+end note
+
+browser->server: HTTP GET https://studies.cs.helsinki.fi/exampleapp/data.json
+server-->browser: [{"content":"test","date":"2021-10-31T17:10:06.290Z"}, ...]
+
+note over browser:
+When the data has been fetched, the browser executes 
+an event handler, which renders the notes to the page
+end note

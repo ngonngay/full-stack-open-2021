@@ -1,0 +1,9 @@
+note over browser:User input new note content
+note over browser:spa.js: User submit note. Javascript code prevent the default \nhandling of form submit
+note over browser:spa.js: Rerender note list. Javascript code add new note to node list
+note over browser:spa.js: create new node json object.
+browser->server:HTTP POST https://studies.cs.helsinki.fi/exampleapp/new_note_spa
+
+server-->browser:application/json : {"message":"note created"}
+
+//https://sequencediagram.org/
