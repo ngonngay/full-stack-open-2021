@@ -12,16 +12,32 @@ const StatisticLine = ({ text, value }) => {
 	);
 };
 const Statistics = ({ good, bad, neutral, all, average, positive }) => {
-	return (
-		<>
-			<StatisticLine text='good' value={good} />
-			<StatisticLine text='neutral' value={neutral} />
-			<StatisticLine text='bad' value={bad} />
-			<StatisticLine text='all' value={all} />
-			<StatisticLine text='average' value={average} />
-			<StatisticLine text='positive' value={positive} />
-		</>
-	);
+	if (all !== 0) {
+		return (
+			<table>
+				<thead>
+					<tr>
+						<th>
+							<h1>statistics</h1>
+						</th>
+					</tr>
+					<tr>
+						<th>Feedback</th>
+						<th>Times</th>
+					</tr>
+				</thead>
+				<tbody>
+					<StatisticLine text='good' value={good} />
+					<StatisticLine text='neutral' value={neutral} />
+					<StatisticLine text='bad' value={bad} />
+					<StatisticLine text='all' value={all} />
+					<StatisticLine text='average' value={average} />
+					<StatisticLine text='positive' value={positive} />
+				</tbody>
+			</table>
+		);
+	}
+	return <tr>No feedback given</tr>;
 };
 const App = () => {
 	// save clicks of each button to its own state
@@ -46,30 +62,14 @@ const App = () => {
 			<Button addFeedBack={goodFeedback} text={'good'} />
 			<Button addFeedBack={neutralFeedback} text={'Neutral'} />
 			<Button addFeedBack={badFeedback} text={'Bad'} />
-
-			<table>
-				<thead>
-					<tr>
-						<th>
-							<h1>statistics</h1>
-						</th>
-					</tr>
-					<tr>
-						<th>Feedback</th>
-						<th>Times</th>
-					</tr>
-				</thead>
-				<tbody>
-					<Statistics
-						good={good}
-						neutral={neutral}
-						bad={bad}
-						all={good + bad + neutral}
-						average={average ? average : 0}
-						positive={positive ? ` ${positive} %` : `0%`}
-					/>
-				</tbody>
-			</table>
+			<Statistics
+				good={good}
+				neutral={neutral}
+				bad={bad}
+				all={good + bad + neutral}
+				average={average ? average : 0}
+				positive={positive ? ` ${positive} %` : `0%`}
+			/>
 		</div>
 	);
 };

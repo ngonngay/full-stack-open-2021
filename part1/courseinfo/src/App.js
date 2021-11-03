@@ -52,7 +52,9 @@ const App = () => {
 		<div>
 			<Header course={course} />
 			<Content content={parts} />
-			<Total total={parts.reduce((total, curr) => (total += curr.exercises), 0)} />
+			<Total
+				total={parts.reduce((total, curr) => (total += curr.exercises), 0)}
+			/>
 		</div>
 	);
 };
