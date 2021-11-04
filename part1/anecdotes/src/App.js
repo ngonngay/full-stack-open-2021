@@ -24,7 +24,7 @@ const App = () => {
 		let ramdom = selected;
 		do {
 			ramdom = Math.floor(Math.random() * anecdotes.length);
-		} while (ramdom == selected);
+		} while (ramdom === selected);
 		setSelected(ramdom);
 	};
 
