@@ -11,7 +11,7 @@ const Filter = ({ handleFilter, value }) => {
 		</div>
 	);
 };
-const PersonForm = ({ handleSubmit, setNewName, setNewPhone, newName, newPhone }) => {
+const PersonForm = ({ handleSubmit, setNewName, setNewNumber, newName, newNumber }) => {
 	return (
 		<form onSubmit={handleSubmit}>
 			<div>
@@ -19,7 +19,7 @@ const PersonForm = ({ handleSubmit, setNewName, setNewPhone, newName, newPhone }
 				<input onChange={setNewName} value={newName} required />
 				<div>
 					number:
-					<input onChange={setNewPhone} value={newPhone} required />
+					<input onChange={setNewNumber} value={newNumber} required />
 				</div>
 			</div>
 			<div>
@@ -38,16 +38,21 @@ const Notification = ({ message }) => {
 const App = () => {
 	const [persons, setPersons] = useState([]);
 	const [newName, setNewName] = useState('');
-	const [newPhone, setNewPhone] = useState('');
+	const [newNumber, setNewNumber] = useState('');
 	const [filter, setFilter] = useState('');
 	const [message, setMessage] = useState({ message: null });
 	useEffect(() => {
-		personsService.getAll().then((response) => {
-			setPersons(response.data);
-		});
+		personsService
+			.getAll()
+			.then((response) => {
+				setPersons(response.data);
+			})
+			.catch((error) => {
+				console.log(error);
+			});
 	}, []);
 	const checkExist = (persons, newName) => {
-		console.log(persons.map((persons) => persons.name).includes(newName));
+		//console.log(persons.map((persons) => persons.name).includes(newName));
 		return persons.map((persons) => persons.name).includes(newName);
 	};
 	const handleDelete = (id, name) => {
@@ -87,14 +92,14 @@ const App = () => {
 
 		if (!checkExist(persons, newName)) {
 			personsService
-				.create({ name: newName, phone: newPhone })
+				.create({ name: newName, number: newNumber })
 				.then((response) => {
 					console.log(response);
 					setPersons(
 						persons.concat({
 							id: response.data.id,
 							name: newName,
-							phone: newPhone,
+							number: newNumber,
 						}),
 					);
 					setMessage({
@@ -105,7 +110,7 @@ const App = () => {
 						setMessage({ message: null });
 					}, 5000);
 					setNewName('');
-					setNewPhone('');
+					setNewNumber('');
 				})
 				.catch((error) => {
 					console.log(error);
@@ -123,7 +128,7 @@ const App = () => {
 				});
 				if (updateId != -1) {
 					personsService
-						.update(updateId, { phone: newPhone })
+						.update(updateId, { number: newNumber })
 						.then(() => {
 							setMessage({
 								message: `Updated number for ${newName}`,
@@ -132,10 +137,10 @@ const App = () => {
 							setTimeout(() => {
 								setMessage({ message: null });
 							}, 5000);
+							personsService.getAll().then((response) => {
+								setPersons(response.data);
+							});
 						});
-					personsService.getAll().then((response) => {
-						setPersons(response.data);
-					});
 				}
 			}
 		}
@@ -150,9 +155,9 @@ const App = () => {
 			<PersonForm
 				handleSubmit={(e) => handleSubmit(e)}
 				setNewName={(e) => setNewName(e.target.value)}
-				setNewPhone={(e) => setNewPhone(e.target.value)}
+				setNewNumber={(e) => setNewNumber(e.target.value)}
 				newName={newName}
-				newPhone={newPhone}
+				newNumber={newNumber}
 			/>
 
 			<h2>Numbers</h2>
@@ -162,7 +167,7 @@ const App = () => {
 				)
 				.map((person) => (
 					<p key={nanoid()}>
-						{`${person.name}  ${person.phone}`}{' '}
+						{`${person.name}  ${person.number}`}{' '}
 						<button
 							onClick={() =>
 								handleDelete(person.id, person.name)

@@ -1,12 +1,13 @@
 import axios from 'axios';
-const baseUrl = 'http://localhost:3001/persons';
+//const baseUrl = 'http://localhost:3001/persons';
+const baseUrl = 'http://localhost:3001/api/persons';
 
 const getAll = () => {
 	return axios.get(baseUrl);
 };
 
 const create = (newPhone) => {
-	return axios.post(baseUrl, newPhone);
+	return axios.post(`${baseUrl}/create`, newPhone);
 };
 
 const replace = (id, newPhone) => {
