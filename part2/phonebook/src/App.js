@@ -45,7 +45,8 @@ const App = () => {
 		personsService
 			.getAll()
 			.then((response) => {
-				setPersons(response.data);
+				console.log(response.data.phones);
+				setPersons(response.data.phones);
 			})
 			.catch((error) => {
 				console.log(error);
@@ -53,7 +54,7 @@ const App = () => {
 	}, []);
 	const checkExist = (persons, newName) => {
 		//console.log(persons.map((persons) => persons.name).includes(newName));
-		return persons.map((persons) => persons.name).includes(newName);
+		return persons.map((persons) => persons.name).includes(newName.trim());
 	};
 	const handleDelete = (id, name) => {
 		let deleted = window.confirm('Are you sure you want to delete this?');
@@ -62,23 +63,23 @@ const App = () => {
 			personsService
 				.deleted(id)
 				.then((response) => {
-					console.log(response);
-				})
-				.then(() => {
-					personsService.getAll().then((response) => {
-						setPersons(response.data);
-					});
-					setMessage({
-						message: `Deleted ${name}`,
-						type: 'succeed',
-					});
-					setTimeout(() => {
-						setMessage({ message: null });
-					}, 5000);
+					//console.log(response);
+					if (response.data.succeed) {
+						personsService.getAll().then((response) => {
+							setPersons(response.data.phones);
+						});
+						setMessage({
+							message: `Deleted ${name}`,
+							type: 'succeed',
+						});
+						setTimeout(() => {
+							setMessage({ message: null });
+						}, 5000);
+					}
 				})
 				.catch((error) => {
 					setMessage({
-						message: `Information of '${name}' has already been removed from server`,
+						message: `${error}`,
 						type: 'error',
 					});
 					setTimeout(() => {
@@ -92,13 +93,14 @@ const App = () => {
 
 		if (!checkExist(persons, newName)) {
 			personsService
-				.create({ name: newName, number: newNumber })
+				.create({ name: newName.trim(), number: newNumber.trim() })
 				.then((response) => {
 					console.log(response);
+					console.log(response.data.savedPhone.id);
 					setPersons(
 						persons.concat({
-							id: response.data.id,
-							name: newName,
+							id: response.data.savedPhone.id,
+							name: newName.trim(),
 							number: newNumber,
 						}),
 					);
@@ -113,7 +115,11 @@ const App = () => {
 					setNewNumber('');
 				})
 				.catch((error) => {
-					console.log(error);
+					console.log({ error });
+					setMessage({
+						message: `${error}`,
+						type: 'error',
+					});
 				});
 		} else {
 			let update = window.confirm(
@@ -127,19 +133,41 @@ const App = () => {
 					}
 				});
 				if (updateId != -1) {
+					console.log(updateId);
 					personsService
-						.update(updateId, { number: newNumber })
-						.then(() => {
-							setMessage({
-								message: `Updated number for ${newName}`,
-								type: 'succeed',
-							});
-							setTimeout(() => {
-								setMessage({ message: null });
-							}, 5000);
-							personsService.getAll().then((response) => {
-								setPersons(response.data);
-							});
+						.replace(updateId, {
+							name: newName.trim(),
+							number: newNumber.trim(),
+						})
+						.then((response) => {
+							if (response.data.succeed) {
+								setMessage({
+									message: `Updated number for ${newName}`,
+									type: 'succeed',
+								});
+								setTimeout(() => {
+									setMessage({
+										message: null,
+									});
+								}, 5000);
+								setNewName('');
+								setNewNumber('');
+								personsService
+									.getAll()
+									.then((response) => {
+										setPersons(
+											response
+												.data
+												.phones,
+										);
+									});
+							} else {
+								console.log(response.data);
+								setMessage({
+									message: `Updated number for ${newName} failed! Try again or refresh the page`,
+									type: 'error',
+								});
+							}
 						});
 				}
 			}
