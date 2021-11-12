@@ -1,0 +1,45 @@
+{
+	"name": "full-stack-open-2021-phonebook-backend",
+	"version": "1.0.0",
+	"description": "back-end for phonebook front-end project",
+	"main": "index.js",
+	"scripts": {
+		"start": "node index.js",
+		"dev": "nodemon index.js",
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"delete:build": " rm -r ./build",
+		"build:ui": "rm -r ./build && cd E:/Learning/Semeter3/full-stack-open-2021/full-stack-open-2021/part2/phonebook && npm run build --prod && cp -r ./build   E:/Learning/Semeter3/full-stack-open-2021/full-stack-open-2021-phonebook-backend",
+		"deploy": "git push heroku main",
+		"deploy:full": "npm run build:ui && git add . && git commit -m uibuild && git push && npm run deploy",
+		"logs:prod": "heroku logs --tail",
+		"change:cmd": "npm config set script-shell \"C:\\Program Files\\git\\bin\\bash.exe\""
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/ngonngay/full-stack-open-2021-phonebook-backend.git"
+	},
+	"keywords": [
+		"full-stack-open-2021",
+		"phonebook-backend"
+	],
+	"author": "ngonngay/full-stack-open-2021/yandere",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/ngonngay/full-stack-open-2021-phonebook-backend/issues"
+	},
+	"homepage": "https://github.com/ngonngay/full-stack-open-2021-phonebook-backend#readme",
+	"dependencies": {
+		"cors": "^2.8.5",
+		"dotenv": "^10.0.0",
+		"express": "^4.17.1",
+		"mongoose": "^6.0.12",
+		"mongoose-unique-validator": "^3.0.0",
+		"morgan": "^1.10.0",
+		"nanoid": "^3.1.30"
+	},
+	"devDependencies": {
+		"eslint": "^8.2.0",
+		"eslint-plugin-react": "^7.27.0",
+		"nodemon": "^2.0.14"
+	}
+}
