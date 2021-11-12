@@ -1,0 +1,23 @@
+{
+	"name": "bloglist",
+	"version": "1.0.0",
+	"description": "blog list application, that allows users to save information about interesting blogs they have stumbled across on the internet. For each listed blog we will save the author, title, url, and amount of upvotes from users of the application.",
+	"main": "index.js",
+	"scripts": {
+		"dev": "nodemon index.js",
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "ngonngay\tfullstack-open-2021",
+	"license": "ISC",
+	"dependencies": {
+		"cors": "^2.8.5",
+		"dotenv": "^10.0.0",
+		"express": "^4.17.1",
+		"mongoose": "^6.0.12",
+		"morgan": "^1.10.0",
+		"nanoid": "^3.1.30"
+	},
+	"devDependencies": {
+		"nodemon": "^2.0.15"
+	}
+}
