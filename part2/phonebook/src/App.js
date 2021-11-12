@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import personsService from './services/persons';
 import { nanoid } from 'nanoid';
 import './index.css';
@@ -132,7 +131,7 @@ const App = () => {
 						updateId = person.id;
 					}
 				});
-				if (updateId != -1) {
+				if (updateId !== -1) {
 					console.log(updateId);
 					personsService
 						.replace(updateId, {
