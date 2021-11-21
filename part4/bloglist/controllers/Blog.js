@@ -12,7 +12,7 @@ blogsRouter.get('/', async (request, response) => {
 });
 // @route POST api/blogs/
 // @decs Create new blog
-// @access public
+// @access authorization require
 blogsRouter.post('/', middleware.tokenExtractor, async (request, response) => {
 	if (!request.userId) {
 		return response.status(401).json({ error: 'token missing or invalid' });
@@ -38,7 +38,7 @@ blogsRouter.post('/', middleware.tokenExtractor, async (request, response) => {
 // @route DELETE api/blogs/:id
 // @decs Implement functionality for deleting a single blog post resource.
 //		Use the async/await syntax. Follow RESTful conventions when defining the HTTP API.
-// @access public
+// @access authorization require
 blogsRouter.delete('/:id', middleware.tokenExtractor, async (request, response) => {
 	if (!request.userId) {
 		return response.status(401).json({ error: 'token missing or invalid' });
@@ -70,25 +70,57 @@ blogsRouter.delete('/:id', middleware.tokenExtractor, async (request, response) 
 }); //4.13 4.21
 // @route PUT api/blogs/:id
 // @decs Implement functionality for updating the information of an individual blog post.
-// @access public
-blogsRouter.put('/:id', async (req, res) => {
-	if (!req.params.id && !req.body.likes)
-		return res.status(422).json({
-			succeed: false,
-			message: 'Cannot update this blog. Check your update content!',
-		});
-
-	Blog.findByIdAndUpdate({ _id: req.params.id }, { likes: req.body.likes })
-		.then((result) => {
-			return res.status(200).json({ succeed: true, result });
-		})
-		.catch((err) => {
-			console.log(err);
-			return res.status(500).json({
+// @access authorization require
+blogsRouter.put('/:id', middleware.tokenExtractor, async (req, res) => {
+	if (!req.userId) {
+		console.log('missing token');
+		return res.status(401).json({ error: 'token missing or invalid' });
+	}
+	try {
+		console.log(req.body);
+		if (!req.params.id && !req.body.likes)
+			return res.status(422).json({
 				succeed: false,
-				message: `Internal server error : ${err}`,
+				message: 'Cannot update this blog. Check your update content!',
 			});
+		const blog = {
+			likes: req.body.likes,
+		};
+		const blogId = req.params.id;
+		if (!blogId) {
+			return res.status(400).json({ message: 'Invalid blogId', success: false });
+		}
+		// logger.info(blogId, req.userId);
+		// let target = await Blog.findOne({ _id: blogId, user: req.userId });
+		// if (!target) {
+		// 	return res.status(401).json({
+		// 		message: 'You are only allowed to update your own blog',
+		// 		success: false,
+		// 	});
+		// } else {
+		Blog.findOneAndUpdate(
+			{ _id: req.params.id },
+			{ likes: req.body.likes },
+			{ new: true },
+		)
+			.then((result) => {
+				return res.status(200).json({ succeed: true, result });
+			})
+			.catch((err) => {
+				console.log(err);
+				return res.status(500).json({
+					succeed: false,
+					message: `Internal server error : ${err}`,
+				});
+			});
+		//}
+	} catch (err) {
+		console.log(err);
+		return res.status(500).json({
+			succeed: false,
+			message: `Internal server error : ${err}`,
 		});
-}); //4.14
+	}
+}); //4.14 //5.8
 
 module.exports = blogsRouter;

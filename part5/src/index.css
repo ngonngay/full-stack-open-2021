@@ -1,0 +1,24 @@
+.success {
+	display: block;
+	border: 2px solid;
+	padding: 10px;
+	font-size: 19px;
+	color: green;
+	background-color: #e7e7e7;
+	font-weight: 600;
+	margin-left: 3px;
+	letter-spacing: 2px;
+	margin-bottom: 10px;
+}
+.error {
+	display: block;
+	border: 2px solid rgb(250, 0, 0);
+	padding: 10px;
+	font-size: 19px;
+	color: red;
+	background-color: #e7e7e7;
+	font-weight: 600;
+	margin-left: 3px;
+	letter-spacing: 2px;
+	margin-bottom: 10px;
+}
