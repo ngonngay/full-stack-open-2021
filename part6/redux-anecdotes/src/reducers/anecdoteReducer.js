@@ -1,5 +1,4 @@
 import anecdotesService from '../services/anecdotes';
-
 const anecdotesAtStart = [];
 
 const getId = () => (100000 * Math.random()).toFixed(0);
