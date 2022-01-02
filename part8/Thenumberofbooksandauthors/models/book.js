@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const uniqueValidator = require('mongoose-unique-validator');
 const bookSchema = new mongoose.Schema({
 	title: {
 		type: String,
@@ -15,6 +16,7 @@ const bookSchema = new mongoose.Schema({
 	},
 	genres: [{ type: String }],
 });
+bookSchema.plugin(uniqueValidator);
 bookSchema.set('toJSON', {
 	transform: (document, returnedObject) => {
 		returnedObject.id = returnedObject._id.toString();

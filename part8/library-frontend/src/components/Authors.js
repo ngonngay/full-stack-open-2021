@@ -7,6 +7,8 @@ const Authors = (props) => {
 	const [born, setBorn] = useState('');
 	const { loading, data, error } = useQuery(ALL_AUTHOR);
 	const [selectedOption, setSelectedOption] = useState(null);
+	const { logged } = props;
+	//console.log(logged);
 	const options = data?.allAuthors?.map((option) => {
 		return {
 			value: option.name,
@@ -15,6 +17,9 @@ const Authors = (props) => {
 	});
 	const [updateBorn] = useMutation(UPDATE_BORN, {
 		refetchQueries: [{ query: ALL_AUTHOR }],
+		onError: (error) => {
+			console.log(error);
+		},
 	});
 	if (!props.show) {
 		return null;
@@ -27,9 +32,13 @@ const Authors = (props) => {
 	const submit = async (event) => {
 		event.preventDefault();
 		console.log(selectedOption);
-		updateBorn({ variables: { name: selectedOption.value, born } });
-		setSelectedOption('');
-		setBorn('');
+		try {
+			updateBorn({ variables: { name: selectedOption.value, born } });
+			setSelectedOption('');
+			setBorn('');
+		} catch (error) {
+			console.log(error);
+		}
 	};
 
 	return (
@@ -52,26 +61,32 @@ const Authors = (props) => {
 				</tbody>
 			</table>
 			<br />
-			<form onSubmit={submit}>
-				<Select
-					defaultValue={selectedOption}
-					onChange={setSelectedOption}
-					options={options}
-					name='name'
-				/>
-				<br />
-				<div>
-					born {'     '}
-					<input
-						value={born}
-						name='born'
-						type='number'
-						onChange={({ target }) => setBorn(Number(target.value))}
+			{logged ? (
+				<form onSubmit={submit}>
+					<Select
+						defaultValue={selectedOption}
+						onChange={setSelectedOption}
+						options={options}
+						name='name'
 					/>
-				</div>
+					<br />
+					<div>
+						born {'     '}
+						<input
+							value={born}
+							name='born'
+							type='number'
+							onChange={({ target }) =>
+								setBorn(Number(target.value))
+							}
+						/>
+					</div>
 
-				<button type='submit'>update born</button>
-			</form>
+					<button type='submit'>update born</button>
+				</form>
+			) : (
+				<p>Log in to update born</p>
+			)}
 		</div>
 	);
 };

@@ -11,6 +11,9 @@ const NewBook = (props) => {
 
 	const [createBook] = useMutation(CREATE_BOOKS, {
 		refetchQueries: [{ query: ALL_BOOKS }],
+		onError: (error) => {
+			console.log(error);
+		},
 	});
 
 	if (!props.show) {
@@ -35,6 +38,7 @@ const NewBook = (props) => {
 
 	return (
 		<div>
+			<br />
 			<form onSubmit={submit}>
 				<div>
 					title
