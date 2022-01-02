@@ -1,13 +1,36 @@
 import React, { useState } from 'react';
 import { useQuery } from '@apollo/client';
-import { ALL_BOOKS } from '../query';
+import { useSubscription, useApolloClient } from '@apollo/client';
+import { BOOK_ADDED, ALL_BOOKS } from '../query';
 
 const Books = (props) => {
 	const { loading, data, error } = useQuery(ALL_BOOKS);
 	const [filter, setFilter] = useState(null);
+	const client = useApolloClient();
+	const updateCacheWith = (addedBook) => {
+		const includedIn = (set, object) => set.map((p) => p.id).includes(object.id);
+		console.log(addedBook);
+		const dataInStore = client.readQuery({ query: ALL_BOOKS });
+		console.log(!includedIn(dataInStore.allBooks, addedBook));
+		if (!includedIn(dataInStore.allBooks, addedBook)) {
+			client.writeQuery({
+				query: ALL_BOOKS,
+				data: { allBooks: dataInStore.allBooks.concat(addedBook) },
+			});
+		}
+	};
+	useSubscription(BOOK_ADDED, {
+		onSubscriptionData: ({ subscriptionData }) => {
+			const addedBook = subscriptionData.data.bookAdded;
+			console.log(addedBook);
+			window.alert(`${addedBook.name} added`);
+			updateCacheWith(addedBook);
+		},
+	});
 	if (!props.show) {
 		return null;
 	}
+
 	if (error) return <p>Error :(</p>;
 	//if (error) return <p>{error}</p>;
 	if (loading) {

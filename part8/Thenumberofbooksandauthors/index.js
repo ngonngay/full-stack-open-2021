@@ -1,6 +1,15 @@
 const { ApolloServerPluginLandingPageGraphQLPlayground } = require('apollo-server-core');
-const { ApolloServer, UserInputError, AuthenticationError, gql } = require('apollo-server');
-const { v1: uuid } = require('uuid');
+const { UserInputError, AuthenticationError, gql } = require('apollo-server');
+const { ApolloServer } = require('apollo-server-express');
+const { createServer } = require('http');
+const express = require('express');
+const { execute, subscribe } = require('graphql');
+const { SubscriptionServer } = require('subscriptions-transport-ws');
+const { makeExecutableSchema } = require('@graphql-tools/schema');
+const cors = require('cors');
+const { PubSub } = require('graphql-subscriptions');
+const pubsub = new PubSub();
+
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 const config = require('./utils/config');
@@ -52,6 +61,9 @@ const typeDefs = gql`
 		editAuthor(name: String!, setBornTo: Int!): Author
 		createUser(username: String!, favoriteGenre: String!): User
 		login(username: String!, password: String!): Token
+	}
+	type Subscription {
+		bookAdded: Book!
 	}
 `;
 
@@ -122,13 +134,13 @@ const resolvers = {
 				return books;
 			} else {
 				let books = await Book.find({}).populate('author');
-				console.log(books);
+				//console.log(books);
 				return books;
 			}
 		},
 		allAuthors: async () => {
 			const authors = await Author.find({});
-			console.log(authors);
+			//console.log(authors);
 			return authors;
 		},
 		me: (root, args, context) => {
@@ -157,7 +169,8 @@ const resolvers = {
 					//console.log(author.id);
 					book.author = author.id;
 				}
-				console.log(book);
+				// console.log(book);
+				await pubsub.publish('BOOK_ADDED', { bookAdded: book });
 				await book.save();
 				return book.populate('author');
 			} catch (err) {
@@ -204,22 +217,66 @@ const resolvers = {
 			return { value: jwt.sign(userForToken, config.JWT_SECRET) };
 		},
 	},
+	Subscription: {
+		bookAdded: {
+			subscribe: () => {
+				console.log('subscribe');
+				pubsub.asyncIterator(['BOOK_ADDED']);
+			},
+		},
+	},
 };
 
-const server = new ApolloServer({
-	typeDefs,
-	resolvers,
-	context: async ({ req }) => {
-		const auth = req ? req.headers.authorization : null;
-		if (auth && auth.toLowerCase().startsWith('bearer ')) {
-			const decodedToken = jwt.verify(auth.substring(7), config.JWT_SECRET);
-			const currentUser = await User.findById(decodedToken.id);
-			return { currentUser };
-		}
-	},
-	plugins: [ApolloServerPluginLandingPageGraphQLPlayground()],
-});
+(async function () {
+	const app = express();
+	app.use(cors());
+	const httpServer = createServer(app);
+	const schema = makeExecutableSchema({ typeDefs, resolvers });
+	const subscriptionServer = SubscriptionServer.create(
+		{
+			// This is the `schema` we just created.
+			schema,
+			// These are imported from `graphql`.
+			execute,
+			subscribe,
+		},
+		{
+			// This is the `httpServer` we created in a previous step.
+			server: httpServer,
+			// Pass a different path here if your ApolloServer serves at
+			// a different path.
+			path: '/graphql',
+		},
+	);
 
-server.listen().then(({ url }) => {
-	console.log(`Server ready at ${url}`);
-});
+	const server = new ApolloServer({
+		schema,
+		context: async ({ req }) => {
+			const auth = req ? req.headers.authorization : null;
+			if (auth && auth.toLowerCase().startsWith('bearer ')) {
+				const decodedToken = jwt.verify(auth.substring(7), config.JWT_SECRET);
+				const currentUser = await User.findById(decodedToken.id);
+				return { currentUser };
+			}
+		},
+		plugins: [
+			ApolloServerPluginLandingPageGraphQLPlayground(),
+			{
+				async serverWillStart() {
+					return {
+						async drainServer() {
+							subscriptionServer.close();
+						},
+					};
+				},
+			},
+		],
+	});
+	await server.start();
+	server.applyMiddleware({ app });
+
+	const PORT = 4000;
+	httpServer.listen(PORT, () =>
+		console.log(`Server is now running on http://localhost:${PORT}/graphql`),
+	);
+})();

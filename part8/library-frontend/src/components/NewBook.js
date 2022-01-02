@@ -8,9 +8,14 @@ const NewBook = (props) => {
 	const [published, setPublished] = useState('');
 	const [genre, setGenre] = useState('');
 	const [genres, setGenres] = useState([]);
+	const { updateCacheWith } = props;
 
 	const [createBook] = useMutation(CREATE_BOOKS, {
 		refetchQueries: [{ query: ALL_BOOKS }],
+		update: (store, response) => {
+			console.log(response.data.addBook);
+			updateCacheWith(response.data.addBook);
+		},
 		onError: (error) => {
 			console.log(error);
 		},
@@ -23,7 +28,6 @@ const NewBook = (props) => {
 	const submit = async (event) => {
 		event.preventDefault();
 		createBook({ variables: { title, author, published, genres } });
-
 		setTitle('');
 		setPublished('');
 		setAuthor('');
