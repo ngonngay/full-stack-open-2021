@@ -230,6 +230,15 @@ const resolvers = {
 (async function () {
 	const app = express();
 	app.use(cors());
+	app.get('/api/ping', (_req, res) => {
+		console.log('someone pinged here');
+		res.send('pong');
+	});
+	app.get('/api/books', async (_req, res) => {
+		let books = await Book.find({}).populate('author');
+		//console.log(books);
+		res.send(books);
+	});
 	const httpServer = createServer(app);
 	const schema = makeExecutableSchema({ typeDefs, resolvers });
 	const subscriptionServer = SubscriptionServer.create(
