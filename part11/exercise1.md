@@ -14,6 +14,9 @@
 
 # Would this setup be better in a self-hosted or a cloud-based environment? Why? What information would you need to make that decision?
 
-|                      | Self-Hosted                                                                               | Cloud-Hosted                                                                     |
-| -------------------- | ----------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
-| Infrastructure Costs | Larger capital costs for network and server infrastructure is required every 3 to 5 years | Smaller recurrent costs every month or year based on the IT resource utilization |
+|                       | Self-Hosted                                                                               | Cloud-Hosted                                                                     |
+| --------------------- | ----------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| Infrastructure Costs  | Larger capital costs for network and server infrastructure is required every 3 to 5 years | Smaller recurrent costs every month or year based on the IT resource utilization |
+| Human Resources Costs | Need to employ or contract                                                                |
+
+highly technical system administrators | Included in the cloud hosting cost |
